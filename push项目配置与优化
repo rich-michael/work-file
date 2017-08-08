@@ -1,0 +1,70 @@
+一、JDK安装
+1 下载JDK包
+     官网下载：http://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html
+     内网共享：\\192.168.1.15\sw\后台开发\共享\jdk-8u77-linux-x64.gz
+
+2 解压安装包
+     路径：/usr/java
+     解压安装包
+
+3 jdk配置
+     编辑/etc/profile，在文件结尾加上
+     
+JAVA_HOME=/usr/java/jdk1.8.0_77
+CLASSPATH=.:$JAVA_HOME/lib.tools.jar
+PATH=$JAVA_HOME/bin:$PATH
+export JAVA_HOME CLASSPATH PATH
+
+  source /etc/profile
+
+4 校验安装是否成功
+  输入命令：Java -version，查看是否有如下说明：
+     java version "1.8.0_77"
+     Java(TM) SE Runtime Environment (build 1.8.0_77-b03)
+     Java HotSpot(TM) 64-Bit Server VM (build 25.77-b03, mixed mode)
+     表明安装成功
+
+二、系统参数设置
+1 线程最大数问题：
+     echo 10000 > /proc/sys/kernel/pid_max
+     echo 10000 > /proc/sys/kernel/thread_max
+     echo 10000 > /proc/sys/vm/max_map_count
+
+     ulimit -a 查看 open files参数，默认1024，改成1000000
+
+     编辑/etc/security/limits.conf，加入
+     
+*  soft  nofile  1000000
+*  hard  nofile  1000000
+
+如果还是没生效，使用命令：ulimit -n 1000000  
+2 端口不足问题
+     报错：Cannot assign requested address
+     vim /etc/sysctl.conf
+     增加如下：
+      net.ipv4.ip_local_port_range = 1024 65000               
+     生效
+     sysctl -p
+
+注：说明了一个问题，单机最大能测试的连接数是65535 - 1024 = 64511
+
+     
+
+三、部署调试
+     代码路径：/mnt/push
+     
+1 创建svn
+     yum -y install subversion
+
+     cd /mnt/push
+     svn checkout http://101.200.183.120:5188/svn/push/
+     账号：public     密码：u1RhxoyaT0kXlMf   
+
+2 启动脚本
+     /mnt/script/push_svn.sh                    # 代码更新
+     /mnt/script/push_restart.sh               # 服务重启
+
+3 测试
+     测试程序路径：
+
+     线程限制问题：
